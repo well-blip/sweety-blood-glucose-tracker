@@ -31,7 +31,7 @@ function initials(name: string) {
 // The logged-in shell: a light, sticky header (logo, page links, account menu) and the page below.
 export function AppLayout() {
   return (
-    <div className="min-h-svh bg-background">
+    <div className="min-h-svh bg-neutral-50">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-6 px-4 sm:px-6">
           <Logo />
@@ -60,7 +60,7 @@ export function AppLayout() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
         <Outlet />
       </main>
     </div>

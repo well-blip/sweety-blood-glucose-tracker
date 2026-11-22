@@ -6,8 +6,10 @@ import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api'
 import { useAuth } from '@/lib/auth-context'
+import { usePageTitle } from '@/lib/use-page-title'
 
 export function LoginPage() {
+  usePageTitle('Log in')
   const { user, logIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()

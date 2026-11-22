@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { CircleCheck } from 'lucide-react'
+import { GlucoseScale } from '@/components/glucose-scale'
 import { SlotScene } from '@/components/slot-scene'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ApiError } from '@/lib/api'
+import { glucoseLevel } from '@/lib/glucose-scale'
 import { readingsApi, todayLocal, validateReading, type Reading } from '@/lib/readings'
 import { SLOTS, slotForHour, type SlotId } from '@/lib/slots'
 import { cn } from '@/lib/utils'
@@ -30,6 +32,10 @@ export function AddReadingCard({ editing = null, onSaved, onCancelEdit }: AddRea
   const [saving, setSaving] = useState(false)
 
   const activeScene = SLOTS.find((s) => s.id === slotId)?.scene
+  // While typing, show where the number sits on the colour scale (only once it's a valid reading).
+  const typedValue = /^\d+$/.test(value.trim()) ? Number(value.trim()) : null
+  const preview = typedValue !== null && typedValue >= 40 && typedValue <= 600 ? typedValue : null
+  const previewLevel = preview !== null ? glucoseLevel(preview) : null
 
   function chooseSlot(id: SlotId) {
     setSlotId(id)
@@ -68,7 +74,7 @@ export function AddReadingCard({ editing = null, onSaved, onCancelEdit }: AddRea
   }
 
   return (
-    <section data-scene={activeScene} className="overflow-hidden rounded-xl border bg-card shadow-xs">
+    <section data-scene={activeScene} className="overflow-hidden rounded-xl border bg-card shadow-card">
       <SlotScene slotId={slotId} />
 
       {/* noValidate: we show Kenpath's exact messages ourselves instead of the browser's popups */}
@@ -164,6 +170,20 @@ export function AddReadingCard({ editing = null, onSaved, onCancelEdit }: AddRea
               {saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add reading'}
             </Button>
           </div>
+        </div>
+
+        <div className="grid gap-3 rounded-md border bg-muted/30 p-4">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {previewLevel ? (
+              <>
+                <span className="font-semibold text-foreground">{preview} mg/dl is {previewLevel.label.toLowerCase()}.</span>{' '}
+                {previewLevel.meaning}
+              </>
+            ) : (
+              'Type a value to see where it sits on the scale.'
+            )}
+          </p>
+          <GlucoseScale value={preview} markerLabel={preview !== null ? String(preview) : undefined} />
         </div>
 
         {savedMessage && (

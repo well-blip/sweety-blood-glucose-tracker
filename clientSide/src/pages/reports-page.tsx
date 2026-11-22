@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ArrowDown, ArrowUp, CalendarDays, Hash, Sigma } from 'lucide-react'
+import { GlucoseBadge, GlucoseScale } from '@/components/glucose-scale'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -7,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ApiError } from '@/lib/api'
 import { formatDate, MESSAGES, readingsApi, todayLocal, type Report, type ReportType } from '@/lib/readings'
 import { SLOTS } from '@/lib/slots'
+import { usePageTitle } from '@/lib/use-page-title'
 
 const REPORT_TYPES: { type: ReportType; label: string; explains: string }[] = [
   { type: 'daily', label: 'Daily', explains: 'The selected day' },
@@ -15,6 +17,7 @@ const REPORT_TYPES: { type: ReportType; label: string; explains: string }[] = [
 ]
 
 export function ReportsPage() {
+  usePageTitle('Reports')
   const [type, setType] = useState<ReportType>('daily')
   const [date, setDate] = useState(todayLocal)
   const [loaded, setLoaded] = useState<{ key: string; report: Report } | null>(null)
@@ -44,7 +47,7 @@ export function ReportsPage() {
     <div className="grid gap-8">
       <div className="grid gap-1">
         <h1 className="text-3xl font-semibold">Reports</h1>
-        <p className="text-muted-foreground">Pick a date and a report to see your highest, lowest and average readings.</p>
+        <p className="text-lg text-muted-foreground">Pick a date and a report to see your highest, lowest and average readings.</p>
       </div>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -98,11 +101,18 @@ export function ReportsPage() {
           ) : (
             <div className="grid gap-8">
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <Stat icon={ArrowUp} label="Highest" value={report.summary.highest} unit="mg/dl" />
-                <Stat icon={ArrowDown} label="Lowest" value={report.summary.lowest} unit="mg/dl" />
-                <Stat icon={Sigma} label="Average" value={report.summary.average?.toFixed(1)} unit="mg/dl" />
+                <Stat icon={ArrowUp} label="Highest" value={report.summary.highest} unit="mg/dl" level={report.summary.highest} />
+                <Stat icon={ArrowDown} label="Lowest" value={report.summary.lowest} unit="mg/dl" level={report.summary.lowest} />
+                <Stat icon={Sigma} label="Average" value={report.summary.average?.toFixed(1)} unit="mg/dl" level={report.summary.average} />
                 <Stat icon={Hash} label="Readings" value={report.summary.count} />
               </div>
+
+              {report.summary.average !== null && (
+                <div className="grid gap-3">
+                  <h2 className="font-semibold">Your average on the scale</h2>
+                  <GlucoseScale value={report.summary.average} markerLabel={`Average ${report.summary.average.toFixed(1)}`} />
+                </div>
+              )}
 
               {/* Kenpath: the daily report also lists each reading with its slot */}
               {report.type === 'daily' && (
@@ -119,8 +129,11 @@ export function ReportsPage() {
                             {slot.label}
                           </span>
                           {reading ? (
-                            <span className="font-semibold">
-                              {reading.value} <span className="text-sm font-normal text-muted-foreground">mg/dl</span>
+                            <span className="inline-flex items-center gap-3">
+                              <GlucoseBadge value={reading.value} className="hidden sm:inline-flex" />
+                              <span className="font-semibold">
+                                {reading.value} <span className="text-sm font-normal text-muted-foreground">mg/dl</span>
+                              </span>
                             </span>
                           ) : (
                             <span className="text-muted-foreground">Not logged</span>
@@ -148,11 +161,13 @@ type StatProps = {
   label: string
   value: number | string | null | undefined
   unit?: string
+  /** A glucose value to show as a coloured level badge under the number. */
+  level?: number | null
 }
 
-function Stat({ icon: Icon, label, value, unit }: StatProps) {
+function Stat({ icon: Icon, label, value, unit, level }: StatProps) {
   return (
-    <div className="grid gap-2 rounded-md border bg-muted/30 p-4">
+    <div className="grid content-start gap-2 rounded-md border bg-muted/30 p-4">
       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
         <Icon className="size-4" aria-hidden="true" />
         {label}
@@ -161,6 +176,7 @@ function Stat({ icon: Icon, label, value, unit }: StatProps) {
         {value ?? '–'}
         {unit && <span className="ml-1 text-base font-normal text-muted-foreground">{unit}</span>}
       </span>
+      {typeof level === 'number' && <GlucoseBadge value={level} className="justify-self-start" />}
     </div>
   )
 }

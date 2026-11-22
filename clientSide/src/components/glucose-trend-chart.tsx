@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, ReferenceArea, XAxis, YAxis } from 'recharts'
+import { GlucoseBadge } from '@/components/glucose-scale'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { glucoseLevel } from '@/lib/glucose-scale'
 import { formatDate, readingsApi, type Trend } from '@/lib/readings'
 
 // Based on shadcn's "Area Chart – Interactive" demo: same structure (card header + range switch +
@@ -48,6 +50,10 @@ export function GlucoseTrendChart({ refreshKey }: { refreshKey: number }) {
           <CardTitle className="text-lg">Your glucose over time</CardTitle>
           <CardDescription>
             {trend ? `Daily average, ${formatDate(trend.from)} – ${formatDate(trend.to)}` : 'Daily average'}
+            <span className="ml-2 inline-flex items-center gap-1.5 whitespace-nowrap">
+              <span className="inline-block size-2.5 rounded-xs bg-[#16a34a]/20 ring-1 ring-[#16a34a]/40" aria-hidden="true" />
+              Target 70–180
+            </span>
           </CardDescription>
         </div>
         <Tabs value={String(range)} onValueChange={(value) => setRange(Number(value) as RangeDays)}>
@@ -81,6 +87,8 @@ export function GlucoseTrendChart({ refreshKey }: { refreshKey: number }) {
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} />
+              {/* Soft green band behind the line: the target range (70–180 mg/dl) */}
+              <ReferenceArea y1={70} y2={180} fill="#16a34a" fillOpacity={0.06} ifOverflow="hidden" />
               <XAxis
                 dataKey="date"
                 tickLine={false}
@@ -101,8 +109,11 @@ export function GlucoseTrendChart({ refreshKey }: { refreshKey: number }) {
                     indicator="dot"
                     labelFormatter={(_, payload) => formatDate(payload?.[0]?.payload?.date ?? '')}
                     formatter={(value, _name, item) => (
-                      <div className="grid gap-0.5">
-                        <span className="font-medium text-foreground">Average {Number(value).toFixed(1)} mg/dl</span>
+                      <div className="grid gap-1">
+                        <span className="flex items-center gap-2 font-medium text-foreground">
+                          Average {Number(value).toFixed(1)} mg/dl
+                          <GlucoseBadge value={Number(value)} className="px-2 text-xs" />
+                        </span>
                         <span className="text-muted-foreground">
                           {item.payload.count === 1
                             ? '1 reading'
@@ -119,8 +130,26 @@ export function GlucoseTrendChart({ refreshKey }: { refreshKey: number }) {
                 fill="url(#fillAverage)"
                 stroke="var(--color-average)"
                 strokeWidth={2}
-                dot={days.length <= 31 ? { r: 3, fill: 'var(--background)', strokeWidth: 2 } : false}
-                activeDot={{ r: 5 }}
+                // Each day's dot is coloured by its level (green = normal … red = extremely high).
+                // With 3 months of data the dots would crowd together, so they're hidden then.
+                dot={
+                  days.length <= 31
+                    ? ({ cx, cy, payload, index }) => (
+                        <circle
+                          key={index}
+                          cx={cx}
+                          cy={cy}
+                          r={4}
+                          fill={glucoseLevel(payload.average).color}
+                          stroke="var(--background)"
+                          strokeWidth={1.5}
+                        />
+                      )
+                    : false
+                }
+                activeDot={({ cx, cy, payload }) => (
+                  <circle cx={cx} cy={cy} r={6} fill={glucoseLevel(payload.average).color} stroke="var(--background)" strokeWidth={2} />
+                )}
               />
             </AreaChart>
           </ChartContainer>

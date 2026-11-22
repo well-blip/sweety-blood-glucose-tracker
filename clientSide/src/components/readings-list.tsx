@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { GlucoseBadge } from '@/components/glucose-scale'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -66,7 +67,12 @@ export function ReadingsList({ refreshKey, editingId, onEdit, onDeleted }: Readi
         {error ? (
           <p className="px-6 py-10 text-center text-destructive">{error}</p>
         ) : !data ? (
-          <p className="px-6 py-10 text-center text-muted-foreground">Loading…</p>
+          // Grey placeholder rows the same height as real ones, so the page doesn't jump when data arrives
+          <div className="grid gap-3 px-6 py-4" aria-label="Loading readings">
+            {Array.from({ length: 5 }, (_, i) => (
+              <div key={i} className="h-10 animate-pulse rounded-md bg-muted/70" />
+            ))}
+          </div>
         ) : data.total === 0 ? (
           <div className="grid gap-1 px-6 py-12 text-center">
             <p className="font-medium">No readings yet</p>
@@ -79,6 +85,7 @@ export function ReadingsList({ refreshKey, editingId, onEdit, onDeleted }: Readi
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="pl-6">Date</TableHead>
                   <TableHead>Time slot</TableHead>
+                  <TableHead className="hidden sm:table-cell">Level</TableHead>
                   <TableHead className="text-right">Value</TableHead>
                   <TableHead className="pr-6 text-right">
                     <span className="sr-only">Actions</span>
@@ -96,6 +103,9 @@ export function ReadingsList({ refreshKey, editingId, onEdit, onDeleted }: Readi
                           {Icon && <Icon className="size-4 text-muted-foreground" aria-hidden="true" />}
                           {slotLabel(reading.slot)}
                         </span>
+                      </TableCell>
+                      <TableCell className="hidden py-3 sm:table-cell">
+                        <GlucoseBadge value={reading.value} />
                       </TableCell>
                       <TableCell className="py-3 text-right font-semibold">
                         {reading.value} <span className="text-sm font-normal text-muted-foreground">mg/dl</span>

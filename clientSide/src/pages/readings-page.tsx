@@ -4,9 +4,11 @@ import { GlucoseTrendChart } from '@/components/glucose-trend-chart'
 import { ReadingsList } from '@/components/readings-list'
 import { useAuth } from '@/lib/auth-context'
 import type { Reading } from '@/lib/readings'
+import { usePageTitle } from '@/lib/use-page-title'
 
 // Add a reading at the top, the chart underneath, then the full list.
 export function ReadingsPage() {
+  usePageTitle('Readings')
   const { user } = useAuth()
   const [editing, setEditing] = useState<Reading | null>(null)
   // Bumped after every change; the chart and list watch it and reload their data.
@@ -22,7 +24,7 @@ export function ReadingsPage() {
     <div className="grid gap-8">
       <div className="grid gap-1">
         <h1 className="text-3xl font-semibold">Hello, {user?.name.split(' ')[0]}</h1>
-        <p className="text-muted-foreground">Log a reading, then see how your levels are moving over time.</p>
+        <p className="text-lg text-muted-foreground">Log a reading, then see how your levels are moving over time.</p>
       </div>
 
       {/* A new `key` remounts the card, so its form resets cleanly between "add" and each "edit" */}

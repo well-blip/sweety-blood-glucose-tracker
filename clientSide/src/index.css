@@ -46,6 +46,8 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    /* One soft, two-layer shadow for every card (same as the login card) */
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 12px 24px -16px rgb(0 0 0 / 0.14);
 }
 
 :root {
@@ -60,7 +62,7 @@
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
+    --muted-foreground: oklch(0.46 0 0); /* darker than shadcn's default: easier for older eyes (≈7:1 on white) */
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
@@ -134,6 +136,10 @@
     /* Slightly tighter headings look more polished; kept mild because the font is already compact */
     @apply text-balance;
     letter-spacing: -0.015em;
+    }
+  h1 {
+    /* Page titles go a little tighter still, like the Next.js starter's tracking-tight headline */
+    letter-spacing: -0.025em;
     }
   html {
     @apply font-sans;

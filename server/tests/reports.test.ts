@@ -139,3 +139,56 @@ describe('GET /reports/trend', () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe('report cache (Redis)', () => {
+  let token: string
+  const today = todayInAppTimezone()
+  const getDaily = () => api().get(`/reports?type=daily&date=${today}`).set('Authorization', `Bearer ${token}`)
+
+  beforeEach(async () => {
+    token = await signUpAndGetToken()
+  })
+
+  it('serves the second identical request from the cache', async () => {
+    const first = await getDaily()
+    expect(first.headers['x-cache']).toBe('MISS')
+    // The cache is written in the background; give it a moment
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    const second = await getDaily()
+    expect(second.headers['x-cache']).toBe('HIT')
+    expect(second.body).toEqual(first.body)
+  })
+
+  it('clears the cache when a reading is added, edited or deleted', async () => {
+    await getDaily()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    const created = await api()
+      .post('/readings')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ date: today, slot: 'AFTER_LUNCH', value: 150 })
+    const afterAdd = await getDaily()
+    expect(afterAdd.headers['x-cache']).toBe('MISS')
+    expect(afterAdd.body.summary.count).toBe(1)
+
+    await api()
+      .put(`/readings/${created.body.reading.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ date: today, slot: 'AFTER_LUNCH', value: 170 })
+    const afterEdit = await getDaily()
+    expect(afterEdit.headers['x-cache']).toBe('MISS')
+    expect(afterEdit.body.summary.highest).toBe(170)
+
+    await api().delete(`/readings/${created.body.reading.id}`).set('Authorization', `Bearer ${token}`)
+    const afterDelete = await getDaily()
+    expect(afterDelete.headers['x-cache']).toBe('MISS')
+    expect(afterDelete.body.summary.count).toBe(0)
+  })
+
+  it("keeps each user's cached reports separate", async () => {
+    await getDaily()
+    const otherToken = await signUpAndGetToken('sam@example.com', 'Sam')
+    const other = await api().get(`/reports?type=daily&date=${today}`).set('Authorization', `Bearer ${otherToken}`)
+    expect(other.headers['x-cache']).toBe('MISS')
+  })
+})

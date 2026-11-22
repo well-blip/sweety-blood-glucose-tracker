@@ -1,4 +1,6 @@
+# Everything the API needs locally:   docker compose up -d
 services:
+  # PostgreSQL: users and readings
   db:
     image: postgres:16-alpine
     container_name: sweety-db
@@ -11,6 +13,30 @@ services:
     volumes:
       - sweety-db-data:/var/lib/postgresql/data
       - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sweety -d sweety"]
+      interval: 2s
+      retries: 30
+
+  # Redis: caches report results, and holds the BullMQ job queue (emailing reports to a doctor)
+  redis:
+    image: redis:7-alpine
+    container_name: sweety-redis
+    ports:
+      - "127.0.0.1:6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      retries: 30
+
+  # Mailpit: a fake mail server for development. Emails are caught here instead of being delivered,
+  # so "send to my doctor" works end to end without a real inbox. Open http://localhost:8025 to read them.
+  mail:
+    image: axllent/mailpit:v1.27
+    container_name: sweety-mail
+    ports:
+      - "127.0.0.1:1025:1025" # SMTP (the API sends here)
+      - "127.0.0.1:8025:8025" # web inbox
 
 volumes:
   sweety-db-data:

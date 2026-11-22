@@ -1,3 +1,4 @@
+import { clearReportCache } from '../cache/report-cache'
 import { pool } from '../db/pool'
 import { AppError } from '../errors'
 import { MESSAGES, SLOTS, type ReadingInput, type Slot } from '../validation/reading.validation'
@@ -49,6 +50,7 @@ export async function createReading(userId: number, input: ReadingInput): Promis
        RETURNING ${READING_COLUMNS}`,
       [userId, input.date, input.slot, input.value],
     )
+    await clearReportCache(userId) // the user's reports now include this reading
     return rows[0]
   } catch (error) {
     rethrowDuplicate(error, input.slot)
@@ -91,6 +93,7 @@ export async function updateReading(userId: number, readingId: number, input: Re
        RETURNING ${READING_COLUMNS}`,
       [readingId, userId, input.date, input.slot, input.value],
     )
+    await clearReportCache(userId)
     return rows[0]
   } catch (error) {
     rethrowDuplicate(error, input.slot)
@@ -100,6 +103,7 @@ export async function updateReading(userId: number, readingId: number, input: Re
 export async function deleteReading(userId: number, readingId: number): Promise<void> {
   const { rowCount } = await pool.query('DELETE FROM readings WHERE id = $1 AND user_id = $2', [readingId, userId])
   if (rowCount === 0) throw notFound()
+  await clearReportCache(userId)
 }
 
 // Every query includes user_id, so another user's reading looks exactly like one that doesn't exist.

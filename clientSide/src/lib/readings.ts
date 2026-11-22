@@ -74,4 +74,14 @@ export const readingsApi = {
   remove: (id: number) => api<void>(`/readings/${id}`, { method: 'DELETE' }),
   report: (type: ReportType, date: string) => api<Report>(`/reports?type=${type}&date=${date}`),
   trend: (days: 7 | 30 | 90) => api<Trend>(`/reports/trend?days=${days}`),
+  // Asks the server to email the report as a PDF; a background worker does the actual sending.
+  emailReport: (type: ReportType, date: string, doctorEmail: string) =>
+    api<{ jobId: string }>('/reports/email', { method: 'POST', body: { type, date, doctorEmail } }),
+  emailStatus: (jobId: string) => api<ReportEmailStatus>(`/reports/email/${jobId}`),
+}
+
+export type ReportEmailStatus = {
+  status: 'queued' | 'sending' | 'sent' | 'failed'
+  sentTo: string
+  error?: string
 }

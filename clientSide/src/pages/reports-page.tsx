@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowDown, ArrowUp, CalendarDays, Hash, Sigma } from 'lucide-react'
 import { GlucoseBadge, GlucoseScale } from '@/components/glucose-scale'
+import { SendToDoctorCard } from '@/components/send-to-doctor-card'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -148,6 +149,18 @@ export function ReportsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* A new key for each report, so the form's progress message resets when the report changes */}
+      {report && (
+        <SendToDoctorCard
+          key={requestKey}
+          type={report.type}
+          date={date}
+          reportName={`${current.label} report`}
+          period={rangeText(report)}
+          disabled={report.summary.count === 0}
+        />
+      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { afterAll, beforeEach } from 'vitest'
 import { closeRedis, redisReady } from '../src/cache/redis'
 import { pool } from '../src/db/pool'
+import { closeReportEmailQueue } from '../src/jobs/report-email.queue'
 
 // Start every test with empty tables, so tests can't affect each other.
 beforeEach(async () => {
@@ -13,4 +14,5 @@ beforeEach(async () => {
 afterAll(async () => {
   await pool.end()
   await closeRedis()
+  await closeReportEmailQueue()
 })

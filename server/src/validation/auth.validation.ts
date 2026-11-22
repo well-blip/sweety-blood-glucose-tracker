@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 // Emails are trimmed and lower-cased, so "Jane@Example.com " and "jane@example.com" are one account.
-export const email = z
+const email = z
   .string({ error: 'Enter your email address.' })
   .trim()
   .toLowerCase()

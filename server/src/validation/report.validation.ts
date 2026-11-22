@@ -23,3 +23,15 @@ export const trendQuerySchema = z.object({
     .refine((n) => (TREND_RANGES as readonly number[]).includes(n), 'days must be 7, 30 or 90.')
     .default(30),
 })
+
+// POST /reports/email { type, date, doctorEmail }: the same report choice, plus where to send it
+export function emailReportSchema(today: string) {
+  return reportQuerySchema(today).extend({
+    doctorEmail: z
+      .string({ error: "Enter your doctor's email address." })
+      .trim()
+      .toLowerCase()
+      .min(1, "Enter your doctor's email address.")
+      .pipe(z.email('Enter a valid email address.')),
+  })
+}

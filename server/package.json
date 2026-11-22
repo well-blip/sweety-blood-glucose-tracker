@@ -10,7 +10,9 @@
     "db:setup": "tsx scripts/db-setup.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "worker": "tsx src/worker.ts",
+    "worker:dev": "tsx watch src/worker.ts"
   },
   "keywords": [],
   "author": "",

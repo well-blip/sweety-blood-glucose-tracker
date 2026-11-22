@@ -4,7 +4,7 @@ import './check-and-log.css'
 // and writes the reading into today's log. Pure SVG + CSS keyframes (see check-and-log.css).
 export function CheckAndLog() {
   return (
-    <svg viewBox="0 0 480 300" className="cal w-full max-w-lg overflow-hidden" aria-hidden="true">
+    <svg viewBox="0 0 480 300" className="cal mx-auto w-full max-w-lg overflow-hidden" aria-hidden="true">
       <defs>
         {/* The written "112" is revealed left-to-right through this growing clip, like ink */}
         <clipPath id="cal-ink-clip">

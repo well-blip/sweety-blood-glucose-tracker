@@ -12,11 +12,11 @@ export function CheckAndLog() {
         </clipPath>
         {/* Everything sits inside a rounded frame, so the finger slides in from its top edge */}
         <clipPath id="cal-frame">
-          <rect x="1" y="1" width="478" height="298" rx="24" />
+          <rect x="1" y="1" width="478" height="298" rx="12" />
         </clipPath>
       </defs>
 
-      <rect x="1" y="1" width="478" height="298" rx="24" className="fill-zinc-900/40 stroke-zinc-800" strokeWidth="1.5" />
+      <rect x="1" y="1" width="478" height="298" rx="12" className="fill-zinc-900/40 stroke-zinc-800" strokeWidth="1.5" />
       <g clipPath="url(#cal-frame)">
 
       {/* ---------- glucose meter ---------- */}
@@ -57,7 +57,7 @@ export function CheckAndLog() {
 
       {/* ---------- today's log ---------- */}
       <g>
-        <rect x="236" y="56" width="216" height="226" rx="20" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
+        <rect x="236" y="56" width="216" height="226" rx="10" className="fill-zinc-900 stroke-zinc-700" strokeWidth="1.5" />
         <text x="258" y="90" className="fill-zinc-50 text-[16px] font-semibold">
           Today
         </text>

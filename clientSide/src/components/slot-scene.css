@@ -1,0 +1,99 @@
+/* Animated sky banner for the add-reading card.
+   All four scenes are always in the DOM, stacked on top of each other.
+   Only the active one has opacity 1, so switching slots is a CSS crossfade. */
+
+/* Per-slot colours: --slot-ink is the caption text, --slot-accent marks the selected slot button */
+[data-scene='dawn'] { --slot-ink: #3c3489; --slot-accent: #ba7517; }
+[data-scene='morning'] { --slot-ink: #633806; --slot-accent: #ef9f27; }
+[data-scene='noon'] { --slot-ink: #4a1b0c; --slot-accent: #d85a30; }
+[data-scene='night'] { --slot-ink: #f4f1e6; --slot-accent: #378add; }
+
+.scene {
+  position: relative;
+  height: 8rem;
+  overflow: hidden;
+}
+
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1200ms ease;
+}
+.scene-layer.is-active { opacity: 1; }
+
+.scene-caption {
+  position: absolute;
+  left: 1.25rem;
+  bottom: 0.875rem;
+  z-index: 1;
+  color: var(--slot-ink);
+  transition: color 1200ms ease;
+}
+
+.scene-sun { position: absolute; border-radius: 9999px; }
+
+/* Morning (fasting): dawn, the sun rises from below the edge */
+.scene-dawn { background: linear-gradient(180deg, #c9c3e8 0%, #f3c9c0 62%, #fbd9b0 100%); }
+.scene-dawn .scene-sun {
+  width: 70px; height: 70px; left: 62%; bottom: -36px;
+  background: #ffe3b3;
+  box-shadow: 0 0 40px 14px rgb(255 200 150 / 55%);
+  transform: translateY(30px);
+  transition: transform 2200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.scene-dawn.is-active .scene-sun { transform: translateY(0); }
+
+/* After breakfast: light orange sky with slowly turning rays */
+.scene-morning { background: linear-gradient(160deg, #ffe9c7 0%, #ffd49a 100%); }
+.scene-morning .scene-sun {
+  width: 56px; height: 56px; right: 40px; top: 18px;
+  background: #fff3d6;
+  box-shadow: 0 0 30px 10px rgb(255 236 190 / 70%);
+}
+.scene-rays {
+  position: absolute;
+  width: 520px; height: 520px; right: -200px; top: -230px;
+  border-radius: 9999px;
+  background: repeating-conic-gradient(rgb(255 255 255 / 38%) 0 5deg, transparent 5deg 18deg);
+  mask: radial-gradient(circle, #000 18%, transparent 62%);
+  animation: scene-spin 70s linear infinite;
+}
+
+/* After lunch: deeper orange, the sun's glow pulses */
+.scene-noon { background: linear-gradient(170deg, #ffb86b 0%, #f28c3b 100%); }
+.scene-noon .scene-sun {
+  width: 64px; height: 64px; right: 56px; top: 22px;
+  background: #ffe0a3;
+  animation: scene-glow 4s ease-in-out infinite;
+}
+
+/* After dinner: dark blue night with twinkling stars and a crescent moon */
+.scene-night { background: linear-gradient(180deg, #0b1f3f 0%, #173a6b 100%); }
+.scene-moon {
+  position: absolute; right: 48px; top: 22px;
+  width: 34px; height: 34px; border-radius: 9999px;
+  box-shadow: -9px 4px 0 0 #f4f1e6; /* the shadow is the crescent; the circle itself is transparent */
+}
+.scene-star {
+  position: absolute;
+  border-radius: 9999px;
+  background: #fff;
+  animation: scene-twinkle 3s ease-in-out infinite;
+}
+
+@keyframes scene-spin { to { transform: rotate(360deg); } }
+@keyframes scene-glow {
+  0%, 100% { box-shadow: 0 0 30px 10px rgb(255 190 110 / 55%); }
+  50% { box-shadow: 0 0 46px 18px rgb(255 170 80 / 70%); }
+}
+@keyframes scene-twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+/* People who turn off animations in their OS settings get instant switches and still skies */
+@media (prefers-reduced-motion: reduce) {
+  .scene-layer, .scene-caption, .scene-dawn .scene-sun { transition: none; }
+  .scene-rays, .scene-noon .scene-sun, .scene-star { animation: none; }
+}

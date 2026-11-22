@@ -1,0 +1,84 @@
+/* "Check and log" scene on the login page, one 7-second loop:
+   0–14%   finger comes down to the test strip
+   16–26%  a drop of blood forms and soaks into the strip; the finger lifts away
+   26–42%  the meter measures (dots blink)
+   43%     the reading appears: 112 mg/dl
+   48–64%  a pen writes 112 into today's log
+   67–74%  a tick is drawn next to it
+   92–100% everything resets for the next loop */
+
+.cal * {
+  transform-box: fill-box;
+}
+
+.cal-finger { animation: cal-finger 7s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+.cal-drop { transform-origin: center top; animation: cal-drop 7s ease-in-out infinite; }
+.cal-strip-tip { animation: cal-strip-tip 7s linear infinite; }
+.cal-dots { animation: cal-dots 7s steps(1) infinite; }
+.cal-value { animation: cal-value 7s ease-out infinite; }
+.cal-pen { animation: cal-pen 7s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.cal-ink { transform-origin: left center; animation: cal-ink 7s linear infinite; }
+.cal-tick { stroke-dasharray: 1; animation: cal-tick 7s ease-out infinite; }
+.cal-row-highlight { animation: cal-row 7s ease-out infinite; }
+
+@keyframes cal-finger {
+  0% { transform: translateY(-64px); }
+  14%, 24% { transform: translateY(0); }
+  36%, 100% { transform: translateY(-64px); }
+}
+@keyframes cal-drop {
+  0%, 15% { opacity: 0; transform: translateY(0) scale(0); }
+  19% { opacity: 1; transform: translateY(0) scale(1); }
+  24% { opacity: 1; transform: translateY(14px) scale(0.8); }
+  27%, 100% { opacity: 0; transform: translateY(18px) scale(0.4); }
+}
+@keyframes cal-strip-tip {
+  0%, 23% { opacity: 0; }
+  27%, 92% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes cal-dots {
+  0%, 26% { opacity: 0; }
+  27% { opacity: 1; }
+  31% { opacity: 0.25; }
+  35% { opacity: 1; }
+  39% { opacity: 0.25; }
+  42%, 100% { opacity: 0; }
+}
+@keyframes cal-value {
+  0%, 42% { opacity: 0; transform: translateY(4px); }
+  46%, 93% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; }
+}
+@keyframes cal-pen {
+  0%, 44% { opacity: 0; transform: translate(-6px, -10px) rotate(0deg); }
+  48% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  52% { transform: translate(10px, -2px) rotate(-4deg); }
+  56% { transform: translate(20px, 1px) rotate(2deg); }
+  60% { transform: translate(30px, -2px) rotate(-3deg); }
+  64% { opacity: 1; transform: translate(40px, 0) rotate(0deg); }
+  70%, 100% { opacity: 0; transform: translate(56px, -14px); }
+}
+@keyframes cal-ink {
+  0%, 48% { transform: scaleX(0); }
+  64%, 93% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+@keyframes cal-tick {
+  0%, 67% { stroke-dashoffset: 1; opacity: 1; }
+  74%, 93% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes cal-row {
+  0%, 46% { opacity: 0; }
+  52%, 90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* With "reduce motion" on, show the finished scene: reading on the meter, written in the log */
+@media (prefers-reduced-motion: reduce) {
+  .cal * { animation: none !important; }
+  .cal-finger { transform: translateY(-64px); }
+  .cal-drop, .cal-dots, .cal-pen { opacity: 0; }
+  .cal-tick { stroke-dashoffset: 0; }
+}

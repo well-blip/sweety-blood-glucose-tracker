@@ -1,0 +1,71 @@
+/* Logo motion, pure CSS (no animation library).
+   intro: the hexagon ring draws itself, a drop of blood falls into it, and a ripple spreads out.
+   loop:  the intro, then a soft ripple every few seconds (used on the login page's brand panel). */
+
+.logo-ring,
+.logo-drop,
+.logo-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.logo-ripple { opacity: 0; }
+
+/* ---- intro ---- */
+.logo-motion .logo-ring {
+  /* pathLength="1" on the path lets us draw it from 0% to 100% without measuring it */
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: logo-draw 900ms cubic-bezier(0.65, 0, 0.35, 1) 100ms forwards;
+}
+.logo-motion .logo-drop {
+  opacity: 0;
+  animation: logo-drop-in 650ms cubic-bezier(0.34, 1.4, 0.64, 1) 650ms forwards;
+}
+.logo-motion .logo-ripple {
+  animation: logo-ripple 900ms ease-out 1150ms;
+}
+
+/* ---- loop: keep a gentle pulse going after the intro ---- */
+.logo-motion-loop .logo-ripple {
+  animation: logo-ripple 1600ms ease-out 1150ms infinite;
+}
+.logo-motion-loop .logo-drop {
+  animation:
+    logo-drop-in 650ms cubic-bezier(0.34, 1.4, 0.64, 1) 650ms forwards,
+    logo-beat 1600ms ease-in-out 1150ms infinite;
+}
+
+/* ---- hover (header logo): the drop gives a small bounce ---- */
+.logo-hover:hover .logo-drop {
+  animation: logo-bob 600ms cubic-bezier(0.34, 1.6, 0.64, 1);
+}
+
+@keyframes logo-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes logo-drop-in {
+  0% { opacity: 0; transform: translateY(-9px) scale(0.6); }
+  60% { opacity: 1; transform: translateY(0.6px) scale(1.06, 0.92); } /* little squash on landing */
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes logo-ripple {
+  0% { opacity: 0.7; transform: scale(0.4); }
+  100% { opacity: 0; transform: scale(2.1); }
+}
+@keyframes logo-beat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.1); }
+  24% { transform: scale(1); }
+}
+@keyframes logo-bob {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-2.5px); }
+}
+
+/* Respect "reduce motion": show the finished logo with no movement */
+@media (prefers-reduced-motion: reduce) {
+  .logo-ring, .logo-drop, .logo-ripple { animation: none !important; }
+  .logo-motion .logo-ring { stroke-dashoffset: 0; }
+  .logo-motion .logo-drop { opacity: 1; }
+}

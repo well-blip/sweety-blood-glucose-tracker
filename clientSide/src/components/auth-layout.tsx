@@ -38,7 +38,7 @@ function BrandPanel() {
   return (
     <aside className="relative hidden flex-col justify-between overflow-hidden bg-zinc-950 p-10 text-zinc-50 lg:flex">
       <span className="inline-flex items-center gap-2.5 text-lg font-semibold tracking-tight">
-        <LogoMark className="size-7 [&_rect]:fill-zinc-50 [&_path:first-of-type]:stroke-zinc-900/85" />
+        <LogoMark className="size-7" tone="light" motion="loop" />
         Sweety
       </span>
 

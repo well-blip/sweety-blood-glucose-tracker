@@ -27,7 +27,7 @@ export function FormField({ id, label, error, type, ...inputProps }: FormFieldPr
           type={isPassword && showPassword ? 'text' : type}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
-          className="h-12 text-lg md:text-lg"
+          className="h-12 rounded-xl bg-muted/40 px-4 text-lg md:text-lg"
           {...inputProps}
         />
         {isPassword && (
@@ -35,10 +35,9 @@ export function FormField({ id, label, error, type, ...inputProps }: FormFieldPr
             type="button"
             onClick={() => setShowPassword((shown) => !shown)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground hover:text-foreground"
+            className="absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
-            {showPassword ? 'Hide' : 'Show'}
+            {showPassword ? <EyeOff className="size-5" aria-hidden="true" /> : <Eye className="size-5" aria-hidden="true" />}
           </button>
         )}
       </div>

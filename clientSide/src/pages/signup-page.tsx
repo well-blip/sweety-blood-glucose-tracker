@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { Link, Navigate, useNavigate } from 'react-router'
 import { AuthCard } from '@/components/auth-card'
 import { FormField } from '@/components/form-field'
@@ -38,8 +39,8 @@ export function SignupPage() {
 
   return (
     <AuthCard
-      title="Create your account"
-      subtitle="Start keeping track of your blood sugar"
+      title="Create your Sweety account"
+      subtitle="It takes less than a minute."
       footer={
         <>
           Already have an account?{' '}
@@ -82,8 +83,9 @@ export function SignupPage() {
           error={errors.password}
         />
         {!errors.password && <p className="-mt-3 text-muted-foreground">At least 8 characters.</p>}
-        <Button type="submit" disabled={submitting} className="h-12 w-full text-lg">
-          {submitting ? 'Creating account…' : 'Create account'}
+        <Button type="submit" disabled={submitting} className="h-12 w-full rounded-xl text-lg">
+          {submitting ? 'Creating account…' : 'Continue'}
+          {!submitting && <ArrowRight className="size-5" aria-hidden="true" />}
         </Button>
       </form>
     </AuthCard>

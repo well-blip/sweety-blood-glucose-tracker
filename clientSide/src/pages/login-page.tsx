@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { AuthCard } from '@/components/auth-card'
 import { FormField } from '@/components/form-field'
@@ -42,8 +43,8 @@ export function LoginPage() {
 
   return (
     <AuthCard
-      title="Welcome back"
-      subtitle="Log in to see your readings"
+      title="Log in to Sweety"
+      subtitle="Welcome back. Enter your details to continue."
       footer={
         <>
           New to Sweety?{' '}
@@ -77,8 +78,9 @@ export function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
         />
-        <Button type="submit" disabled={submitting} className="h-12 w-full text-lg">
-          {submitting ? 'Logging in…' : 'Log in'}
+        <Button type="submit" disabled={submitting} className="h-12 w-full rounded-xl text-lg">
+          {submitting ? 'Logging in…' : 'Continue'}
+          {!submitting && <ArrowRight className="size-5" aria-hidden="true" />}
         </Button>
       </form>
     </AuthCard>

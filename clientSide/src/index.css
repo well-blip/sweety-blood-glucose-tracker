@@ -126,5 +126,7 @@
     }
   html {
     @apply font-sans;
+    /* 18px base instead of 16px: everything (text, inputs, buttons) scales up for older eyes */
+    font-size: 112.5%;
     }
 }

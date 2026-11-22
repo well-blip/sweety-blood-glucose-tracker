@@ -16,12 +16,13 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
     <div className="grid min-h-svh lg:grid-cols-2">
       <BrandPanel />
 
-      <div className="relative flex flex-col px-6 py-6 sm:px-10">
+      {/* Light grey behind the form so the white card stands out */}
+      <div className="relative flex flex-col bg-neutral-50 px-6 py-6 sm:px-10 dark:bg-background">
         {/* On phones the brand panel is hidden, so show the logo above the form instead */}
         <Logo className="lg:hidden" />
 
         <div className="flex flex-1 items-center justify-center py-10">
-          <div className="w-full max-w-sm">
+          <div className="w-full max-w-md rounded-xl border bg-card p-8 shadow-[0_1px_2px_rgb(0_0_0/0.04),0_14px_28px_-14px_rgb(0_0_0/0.18)] sm:p-10">
             <div className="mb-8 grid gap-2">
               <h1 className="text-3xl font-semibold">{title}</h1>
               <p className="text-muted-foreground">{subtitle}</p>

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router'
-import { AuthCard } from '@/components/auth-card'
+import { AuthLayout } from '@/components/auth-layout'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api'
@@ -42,21 +42,21 @@ export function LoginPage() {
   }
 
   return (
-    <AuthCard
-      title="Log in to Sweety"
-      subtitle="Welcome back. Enter your details to continue."
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Log in to see your readings and reports."
       footer={
         <>
           New to Sweety?{' '}
-          <Link to="/signup" className="font-medium text-foreground underline underline-offset-4">
+          <Link to="/signup" className="font-medium text-foreground underline underline-offset-4 hover:text-foreground/80">
             Create an account
           </Link>
         </>
       }
     >
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="grid gap-5">
         {formError && (
-          <p role="alert" className="rounded-lg bg-destructive/10 px-4 py-3 text-destructive">
+          <p role="alert" className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             {formError}
           </p>
         )}
@@ -78,11 +78,11 @@ export function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
         />
-        <Button type="submit" disabled={submitting} className="h-12 w-full rounded-xl text-lg">
+        <Button type="submit" disabled={submitting} className="mt-1 h-11 w-full rounded-lg text-base">
           {submitting ? 'Logging in…' : 'Continue'}
-          {!submitting && <ArrowRight className="size-5" aria-hidden="true" />}
+          {!submitting && <ArrowRight aria-hidden="true" />}
         </Button>
       </form>
-    </AuthCard>
+    </AuthLayout>
   )
 }

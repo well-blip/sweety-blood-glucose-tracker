@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { Link, Navigate, useNavigate } from 'react-router'
-import { AuthCard } from '@/components/auth-card'
+import { AuthLayout } from '@/components/auth-layout'
 import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api'
@@ -38,21 +38,21 @@ export function SignupPage() {
   }
 
   return (
-    <AuthCard
-      title="Create your Sweety account"
-      subtitle="It takes less than a minute."
+    <AuthLayout
+      title="Create your account"
+      subtitle="Keep track of your blood sugar in one calm place."
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-foreground underline underline-offset-4">
+          <Link to="/login" className="font-medium text-foreground underline underline-offset-4 hover:text-foreground/80">
             Log in
           </Link>
         </>
       }
     >
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="grid gap-5">
         {formError && (
-          <p role="alert" className="rounded-lg bg-destructive/10 px-4 py-3 text-destructive">
+          <p role="alert" className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             {formError}
           </p>
         )}
@@ -81,13 +81,13 @@ export function SignupPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
+          hint="At least 8 characters."
         />
-        {!errors.password && <p className="-mt-3 text-muted-foreground">At least 8 characters.</p>}
-        <Button type="submit" disabled={submitting} className="h-12 w-full rounded-xl text-lg">
+        <Button type="submit" disabled={submitting} className="mt-1 h-11 w-full rounded-lg text-base">
           {submitting ? 'Creating account…' : 'Continue'}
-          {!submitting && <ArrowRight className="size-5" aria-hidden="true" />}
+          {!submitting && <ArrowRight aria-hidden="true" />}
         </Button>
       </form>
-    </AuthCard>
+    </AuthLayout>
   )
 }

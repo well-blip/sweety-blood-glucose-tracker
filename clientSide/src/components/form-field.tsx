@@ -7,18 +7,19 @@ type FormFieldProps = ComponentProps<typeof Input> & {
   id: string
   label: string
   error?: string
+  hint?: string
 }
 
-// A label, a large input and (if any) the error message right under it.
+// A label, a large input, and either a hint or the error message under it.
 // aria-invalid + aria-describedby let screen readers announce the error with the field.
-export function FormField({ id, label, error, type, ...inputProps }: FormFieldProps) {
+export function FormField({ id, label, error, hint, type, ...inputProps }: FormFieldProps) {
   const [showPassword, setShowPassword] = useState(false)
   const isPassword = type === 'password'
-  const errorId = `${id}-error`
+  const messageId = `${id}-message`
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id} className="text-base">
+    <div className="grid gap-2">
+      <Label htmlFor={id} className="font-medium">
         {label}
       </Label>
       <div className="relative">
@@ -26,8 +27,8 @@ export function FormField({ id, label, error, type, ...inputProps }: FormFieldPr
           id={id}
           type={isPassword && showPassword ? 'text' : type}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
-          className="h-12 rounded-xl bg-muted/40 px-4 text-lg md:text-lg"
+          aria-describedby={error || hint ? messageId : undefined}
+          className="h-11 rounded-lg bg-background px-3.5 text-base shadow-xs md:text-base"
           {...inputProps}
         />
         {isPassword && (
@@ -35,16 +36,22 @@ export function FormField({ id, label, error, type, ...inputProps }: FormFieldPr
             type="button"
             onClick={() => setShowPassword((shown) => !shown)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="absolute top-1/2 right-1.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            {showPassword ? <EyeOff className="size-5" aria-hidden="true" /> : <Eye className="size-5" aria-hidden="true" />}
+            {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
           </button>
         )}
       </div>
-      {error && (
-        <p id={errorId} className="text-base text-destructive">
+      {error ? (
+        <p id={messageId} className="text-sm text-destructive">
           {error}
         </p>
+      ) : (
+        hint && (
+          <p id={messageId} className="text-sm text-muted-foreground">
+            {hint}
+          </p>
+        )
       )}
     </div>
   )

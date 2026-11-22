@@ -122,7 +122,14 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    /* Crisper text rendering; tabular numbers so readings line up in columns */
+    text-rendering: optimizeLegibility;
+    font-variant-numeric: tabular-nums;
+    }
+  h1, h2, h3 {
+    /* Tighter letter spacing on headings is what makes Geist look "designed" rather than default */
+    @apply tracking-tight text-balance;
     }
   html {
     @apply font-sans;

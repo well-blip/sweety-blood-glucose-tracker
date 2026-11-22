@@ -34,6 +34,8 @@ Then start the app:
 npm run dev
 ```
 
+This starts the **server** (the API), the **background worker** and the **client** (the web app) together in one terminal. Press `Ctrl+C` to stop them.
+
 | Open | What it is |
 |---|---|
 | http://localhost:5173 | **The app.** Log in with **`demo@sweety.app`** / **`sweety123`** |
@@ -44,7 +46,7 @@ Other commands (run from the project folder):
 
 | Command | What it does |
 |---|---|
-| `npm test` | Runs all tests (server API tests + React form tests) |
+| `npm test` | Runs all tests: server API tests and client React tests (the Docker containers must be running) |
 | `npm run seed` | Resets the demo user and their readings |
 | `npm run stop` | Stops the Docker containers |
 
@@ -108,46 +110,6 @@ In this project the email goes to **Mailpit**, a fake mail server running in Doc
 
 ### Report caching (Redis)
 Report results are cached in **Redis** for an hour, and the cache is cleared for that user whenever they add, edit or delete a reading. Responses carry an `X-Cache: HIT` or `MISS` header so you can see it working. If Redis is down, the app still works without the cache.
-
----
-
-## Manual setup (if you prefer step by step)
-
-`npm run setup` runs these same steps.
-
-```bash
-# 1. Install packages
-npm install
-cd server && npm install && cd ..
-cd clientSide && npm install && cd ..
-
-# 2. Create the .env files, then put a long random string in JWT_SECRET in server/.env
-cp server/.env.example server/.env
-cp clientSide/.env.example clientSide/.env
-
-# 3. Start PostgreSQL, Redis and Mailpit
-docker compose up -d
-
-# 4. Create the tables (in the dev and test databases) and the demo user
-cd server
-npm run db:setup     # warning: drops and recreates the tables
-npm run seed
-```
-
-Run each part in its own terminal:
-
-```bash
-cd server && npm run dev          # API on http://localhost:4000
-cd server && npm run worker       # background worker (emails the PDF reports)
-cd clientSide && npm run dev      # app on http://localhost:5173
-```
-
-Run the tests:
-
-```bash
-cd server && npm test             # API tests (needs the Docker containers running)
-cd clientSide && npm test         # React form tests
-```
 
 ---
 
@@ -241,26 +203,32 @@ Slots are sent as `MORNING_FASTING`, `AFTER_BREAKFAST`, `AFTER_LUNCH` or `AFTER_
 ## Notes
 
 ### Assumptions
-- **"Today"** for the "Date cannot be in the future." rule is worked out on the server in India time (`APP_TIMEZONE=Asia/Kolkata`). The browser uses its own clock for the instant check, the default dates and the pre-selected slot; the server's answer is the final one.
-- The **duplicate-slot message** uses the brief's exact wording, so the Morning slot reads "You already have an Morning (fasting) reading for this date."
-- The **4-per-day check runs before the duplicate-slot check.** With only 4 slots, a fifth reading always clashes with a slot, so checking slots first would mean "You can add only 4 readings per day." could never appear.
-- A value like **`12.5` or `abc`** shows "Value must be between 40 and 600 mg/dl.", because the brief gives one message for the "whole number between 40 and 600" rule.
-- **Editing** a reading doesn't count against the 4-per-day limit, so a full day can still be edited.
-- **Month to date** includes the selected day. **Monthly** is always the whole previous month, whatever day is selected.
-- Emails are **case-insensitive** (`Jane@Example.com` and `jane@example.com` are the same account).
-- The **colour scale** (Low under 70, Normal 70–140, Slightly high 141–180, High 181–250, Very high 251–300, Extremely high over 300) follows the common 70–180 mg/dl target range. It uses one scale for every slot and is for information only, not medical advice.
-- The UI is made for **older users**: 18px base text, large buttons, mg/dl only, and few choices.
-- The **doctor's email** is remembered in the browser only; it isn't saved to the database.
-- `npm run db:setup` **drops and recreates** the tables. That's fine for a demo, but a real app would use migrations.
-- Docker uses **ports 5433 (Postgres) and 6380 (Redis)** so they don't clash with copies you may already have installed.
+
+**Choices I made where the brief left room**
+- **My own BullMQ job.** The brief gives a daily reminder log only as an example ("e.g."), so I chose a job I thought was more useful: emailing a report to the patient's doctor as a PDF.
+- **AI tools.** I used AI assistance while building this project, which was allowed for this assignment.
+- **Built for older users.** Many people tracking blood sugar are older, so the app uses larger text (18px instead of 16px), big buttons, mg/dl only (no unit switch), and as few choices as possible.
+
+**Dates and "today"**
+- **Which "today" counts.** The rule "Date cannot be in the future." depends on what today's date is, and that can differ by time zone. For example, at 2 am on 16 Oct in India it is still 15 Oct in London. The server decides using **India time** (set by `APP_TIMEZONE=Asia/Kolkata` in `server/.env`).
+- **The browser's clock is only used for instant feedback.** The web app uses the computer's own clock to show the message straight away, to fill in today's date and to pre-select the time slot. Every reading is checked again on the server, and if the two ever disagree, the server's answer is the one that counts.
+- **Report ranges.** "Month to date" includes the selected day. "Monthly" is always the whole previous month, whichever day of the month you pick (any day in October gives 1–30 September).
+
+**Validation rules**
+- **The order of the two "per day" checks.** There are only 4 slots, so a 5th reading on the same day always uses a slot that's already taken. If the app checked "slot already used" first, the message "You can add only 4 readings per day." could never appear. So it checks the 4-per-day limit first.
+- **Exact wording.** The duplicate-slot message uses the brief's exact sentence with the slot name filled in, so for the morning slot it reads "You already have an Morning (fasting) reading for this date."
+- **Decimals and text.** The brief has one rule for "whole number between 40 and 600", so a value like `12.5` or `abc` gets the same message: "Value must be between 40 and 600 mg/dl."
+- **Editing.** Changing an existing reading doesn't count as adding one, so you can still edit readings on a day that already has 4.
+- **Emails.** `Jane@Example.com` and `jane@example.com` are treated as the same account.
+
+**The colour scale**
+- The six levels (Low under 70, Normal 70–140, Slightly high 141–180, High 181–250, Very high 251–300, Extremely high over 300) are based on the common target range for people with diabetes, 70–180 mg/dl. The same scale is used for every time slot. It is there to help people read their numbers, not as medical advice.
+
+**Setup and data**
+- **The database is rebuilt from scratch.** `npm run setup` creates the tables from one file, `server/db/schema.sql`. If the tables already exist, it deletes them (and all readings in them) and creates them again, then adds the demo user. That's fine for a demo. A real app with real users can't delete everyone's data whenever the table design changes; it would use *migrations* instead, which are small numbered scripts that change the existing tables step by step and keep the data.
+- **The doctor's email is not saved on the account.** The Reports page remembers the last address in your browser only, to save retyping it.
+- **Ports.** Docker runs PostgreSQL on port **5433** and Redis on **6380** instead of their usual 5432 and 6379, so they don't clash with copies you may already have installed.
 
 ### What I'd improve with more time
-- **Migrations** (for example node-pg-migrate) instead of drop-and-recreate.
-- **One shared validation package** for client and server. The messages and glucose levels are currently written in both.
-- **Safer sessions:** httpOnly cookies instead of a token in `localStorage`, plus **rate limiting** on login and report emails.
 - **A real email provider** (SES, Resend…) with SMTP login, and the doctor's email saved on the account.
 - **Doctor role** (the last bonus task): a doctor account that sees the reports of the patients assigned to them.
-- **Different targets for fasting and after-meal readings**, set by the doctor.
-- **The daily reminder job** from the brief's BullMQ example, for users with fewer than 4 readings.
-- **Production setup:** compile the TypeScript, run the API and worker in Docker too, and add CI to run the tests on every push.
-- **End-to-end browser tests** (Playwright) for the full sign-up → add → report flow.

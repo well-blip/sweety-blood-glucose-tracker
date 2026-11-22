@@ -1,0 +1,15 @@
+{
+  "name": "sweety",
+  "private": true,
+  "description": "Sweety – Blood Glucose Tracker. Commands for running the whole project from this folder.",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "concurrently --kill-others-on-fail --names api,worker,web --prefix-colors blue,magenta,green \"npm --prefix server run dev\" \"npm --prefix server run worker:dev\" \"npm --prefix clientSide run dev\"",
+    "test": "npm --prefix server test",
+    "seed": "npm --prefix server run seed",
+    "stop": "docker compose stop"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
+}

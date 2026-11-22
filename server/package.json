@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "db:setup": "tsx scripts/db-setup.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed": "tsx scripts/seed.ts"
   },
   "keywords": [],
   "author": "",

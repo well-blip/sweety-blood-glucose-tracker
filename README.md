@@ -50,6 +50,20 @@ Other commands (run from the project folder):
 | `npm run seed` | Resets the demo user and their readings |
 | `npm run stop` | Stops the Docker containers |
 
+### Ports Sweety uses
+
+Everything runs on your own computer only (`127.0.0.1`), in Sweety's own Docker containers, so it doesn't touch any databases you already have. PostgreSQL and Redis use **5433** and **6380** instead of their usual ports to avoid clashes.
+
+| Port | Used by |
+|---|---|
+| 5173 | The web app |
+| 4000 | The API |
+| 5433 | PostgreSQL |
+| 6380 | Redis |
+| 1025, 8025 | Mailpit (test email server and inbox) |
+
+`npm run setup` checks these first. If another program is using one, it stops and says which port and what to do, instead of failing halfway.
+
 ---
 
 ## Features

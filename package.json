@@ -5,7 +5,7 @@
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "concurrently --kill-others-on-fail --names api,worker,web --prefix-colors blue,magenta,green \"npm --prefix server run dev\" \"npm --prefix server run worker:dev\" \"npm --prefix clientSide run dev\"",
-    "test": "npm --prefix server test",
+    "test": "npm --prefix server test && npm --prefix clientSide test",
     "seed": "npm --prefix server run seed",
     "stop": "docker compose stop"
   },

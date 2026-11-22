@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sweety-db
+    environment:
+      POSTGRES_USER: sweety
+      POSTGRES_PASSWORD: sweety
+      POSTGRES_DB: sweety
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - sweety-db-data:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+
+volumes:
+  sweety-db-data:

@@ -1,9 +1,9 @@
 import { Router } from 'express'
 import { validationError } from '../errors'
 import { requireAuth } from '../middleware/auth.middleware'
-import { getReport } from '../services/reports.service'
+import { getReport, getTrend } from '../services/reports.service'
 import { todayInAppTimezone } from '../utils/dates'
-import { reportQuerySchema } from '../validation/report.validation'
+import { reportQuerySchema, trendQuerySchema } from '../validation/report.validation'
 
 export const reportsRouter = Router()
 
@@ -16,4 +16,12 @@ reportsRouter.get('/', async (req, res) => {
   if (!parsed.success) throw validationError(parsed.error)
 
   res.json(await getReport(req.userId!, parsed.data.type, parsed.data.date))
+})
+
+// GET /reports/trend?days=7|30|90 → { from, to, days: [{ date, average, lowest, highest, count }] }
+reportsRouter.get('/trend', async (req, res) => {
+  const parsed = trendQuerySchema.safeParse(req.query)
+  if (!parsed.success) throw validationError(parsed.error)
+
+  res.json(await getTrend(req.userId!, parsed.data.days, todayInAppTimezone()))
 })

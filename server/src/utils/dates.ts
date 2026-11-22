@@ -47,3 +47,9 @@ export function isValidIsoDate(value: string): boolean {
   const date = new Date(Date.UTC(year, month - 1, day))
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
 }
+
+// '2026-10-15' + 3 → '2026-10-18' (negative numbers go back). Calendar maths in UTC so nothing shifts.
+export function addDays(date: string, days: number): string {
+  const [year, month, day] = date.split('-').map(Number)
+  return toIso(new Date(Date.UTC(year, month - 1, day + days)))
+}

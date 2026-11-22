@@ -1,5 +1,5 @@
 import { pool } from '../db/pool'
-import { reportRange, type ReportType } from '../utils/dates'
+import { addDays, reportRange, type ReportType } from '../utils/dates'
 import { SLOTS } from '../validation/reading.validation'
 import type { Reading } from './readings.service'
 
@@ -45,4 +45,25 @@ export async function getReport(userId: number, type: ReportType, selectedDate: 
   ])
 
   return { type, from, to, summary: summary.rows[0], readings: readings.rows }
+}
+
+export type TrendDay = { date: string; average: number; lowest: number; highest: number; count: number }
+
+// One point per day that has readings, for the last `days` days up to today (inclusive).
+// Used by the chart on the Readings page.
+export async function getTrend(userId: number, days: number, today: string) {
+  const from = addDays(today, -(days - 1))
+  const { rows } = await pool.query<TrendDay>(
+    `SELECT reading_date                AS date,
+            ROUND(AVG(value), 1)::float AS average,
+            MIN(value)                  AS lowest,
+            MAX(value)                  AS highest,
+            COUNT(*)::int               AS count
+     FROM readings
+     WHERE user_id = $1 AND reading_date BETWEEN $2 AND $3
+     GROUP BY reading_date
+     ORDER BY reading_date`,
+    [userId, from, today],
+  )
+  return { from, to: today, days: rows }
 }

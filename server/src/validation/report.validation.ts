@@ -14,3 +14,12 @@ export function reportQuerySchema(today: string) {
       .refine((date) => date <= today, MESSAGES.futureDate),
   })
 }
+
+// GET /reports/trend?days=30 — the chart offers three ranges
+export const TREND_RANGES = [7, 30, 90] as const
+export const trendQuerySchema = z.object({
+  days: z.coerce
+    .number()
+    .refine((n) => (TREND_RANGES as readonly number[]).includes(n), 'days must be 7, 30 or 90.')
+    .default(30),
+})

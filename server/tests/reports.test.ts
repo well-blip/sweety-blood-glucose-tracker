@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { reportRange } from '../src/utils/dates'
+import { addDays, reportRange, todayInAppTimezone } from '../src/utils/dates'
 import { api, signUpAndGetToken } from './helpers'
 
 describe('reportRange', () => {
@@ -108,5 +108,34 @@ describe('GET /reports', () => {
     expect(badType.status).toBe(400)
     expect(badDate.body.fields.date).toBe('Choose a valid date.')
     expect(noAuth.status).toBe(401)
+  })
+})
+
+describe('GET /reports/trend', () => {
+  it('returns one averaged point per day within the last N days', async () => {
+    const token = await signUpAndGetToken('trend@example.com', 'Trend')
+    const today = todayInAppTimezone()
+    const add = (date: string, slot: string, value: number) =>
+      api().post('/readings').set('Authorization', `Bearer ${token}`).send({ date, slot, value })
+
+    await add(today, 'MORNING_FASTING', 100)
+    await add(today, 'AFTER_LUNCH', 131)
+    await add(addDays(today, -6), 'AFTER_DINNER', 150) // inside 7 days
+    await add(addDays(today, -7), 'AFTER_DINNER', 300) // just outside 7 days
+
+    const res = await api().get('/reports/trend?days=7').set('Authorization', `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.from).toBe(addDays(today, -6))
+    expect(res.body.days).toEqual([
+      { date: addDays(today, -6), average: 150, lowest: 150, highest: 150, count: 1 },
+      { date: today, average: 115.5, lowest: 100, highest: 131, count: 2 },
+    ])
+  })
+
+  it('only accepts 7, 30 or 90 days', async () => {
+    const token = await signUpAndGetToken('trend2@example.com', 'Trend')
+    const res = await api().get('/reports/trend?days=12').set('Authorization', `Bearer ${token}`)
+    expect(res.status).toBe(400)
   })
 })

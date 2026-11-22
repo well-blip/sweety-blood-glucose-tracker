@@ -6,6 +6,12 @@ Built by Eliyas as the take-home assignment for the **Junior Full Stack Develope
 
 **Stack:** React + Vite (TypeScript) · Node.js + Express (TypeScript) · PostgreSQL · Redis + BullMQ · Docker Compose
 
+> **Try the demo:** run `npm run setup`, then `npm run dev` (see [Quick start](#quick-start-3-commands)), open http://localhost:5173 and log in with
+>
+> **Email:** `demo@sweety.app` · **Password:** `sweety123`
+>
+> The demo account already has 3 months of readings, so the chart and reports have data straight away.
+
 ![Sweety login page](docs/screenshots/01-login.jpg)
 
 ---
